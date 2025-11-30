@@ -28,7 +28,7 @@ export const SuperPowerMenu = ({ player, energy, onActivate, disabled }: SuperPo
           <Button
             key={power.id}
             theme={theme}
-            variant={canAfford ? 'default' : 'outline'}
+            variant={canAfford ? 'primary' : 'outline'}
             size="sm"
             onClick={() => onActivate(power.id)}
             disabled={disabled || !canAfford}
