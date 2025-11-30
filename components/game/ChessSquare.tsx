@@ -1,5 +1,6 @@
 import { Piece, Position } from '@/lib/types';
 import { ChessPiece } from './ChessPiece';
+import { useGameStore } from '@/lib/store';
 import { clsx } from 'clsx';
 import { THEME_NAOMY, THEME_PAPA } from '@/lib/themes';
 
@@ -24,10 +25,12 @@ export const ChessSquare = ({
   const isLight = (position.row + position.col) % 2 === 0;
   
   // Determine base color based on player theme preference (or just standard board colors)
-  // Here we use the player's theme to color the board slightly differently
   const theme = playerTheme === 'naomy' ? THEME_NAOMY : THEME_PAPA;
-  
   const baseColor = isLight ? theme.colors.boardLight : theme.colors.boardDark;
+
+  const { frozenPieces, shieldedPieces } = useGameStore();
+  const isFrozen = piece && frozenPieces[piece.id];
+  const isShielded = piece && shieldedPieces[piece.id];
 
   return (
     <div
@@ -39,6 +42,8 @@ export const ChessSquare = ({
           'ring-4 ring-inset ring-yellow-400 z-10': isSelected,
           'ring-4 ring-inset ring-green-400/50': isValidMove && !piece, // Empty valid move
           'ring-4 ring-inset ring-red-400/50': isValidMove && piece, // Capture move
+          'ring-4 ring-cyan-400 bg-cyan-100/50': isFrozen,
+          'ring-4 ring-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.8)]': isShielded
         }
       )}
       style={{ backgroundColor: baseColor }}
