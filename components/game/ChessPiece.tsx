@@ -9,7 +9,7 @@ interface ChessPieceProps {
 }
 
 export const ChessPiece = ({ piece }: ChessPieceProps) => {
-  const isNaomy = piece.color === 'naomy';
+  const isNaomy = piece.color === 'white';
   
   const getIcon = () => {
     if (isNaomy) {
