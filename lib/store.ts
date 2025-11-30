@@ -61,6 +61,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const { board, turn, activePower, energyNaomy, energyPapa, capturedByNaomy, capturedByPapa, frozenPieces, shieldedPieces } = get();
     const targetPiece = board[targetSquare.row][targetSquare.col];
     const currentEnergy = turn === 'naomy' ? energyNaomy : energyPapa;
+    const turnColor = turn === 'naomy' ? 'white' : 'black';
     
     let cost = 0;
     let success = false;
@@ -75,7 +76,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     // 1. Freeze (30%)
     if (activePower === 'freeze') {
       cost = 30;
-      if (currentEnergy >= cost && targetPiece && targetPiece.color !== turn) {
+      if (currentEnergy >= cost && targetPiece && targetPiece.color !== turnColor) {
         newFrozen[targetPiece.id] = 2; // Freeze for 2 turns
         success = true;
       }
@@ -84,7 +85,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     // 2. Shield (50%)
     else if (activePower === 'shield') {
       cost = 50;
-      if (currentEnergy >= cost && targetPiece && targetPiece.color === turn) {
+      if (currentEnergy >= cost && targetPiece && targetPiece.color === turnColor) {
         newShielded[targetPiece.id] = 1; // Shield for 1 turn
         success = true;
       }
@@ -96,7 +97,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const { selectedSquare } = get();
       if (currentEnergy >= cost && selectedSquare && !targetPiece) {
         const sourcePiece = board[selectedSquare.row][selectedSquare.col];
-        if (sourcePiece && sourcePiece.color === turn) {
+        if (sourcePiece && sourcePiece.color === turnColor) {
           newBoard[targetSquare.row][targetSquare.col] = sourcePiece;
           newBoard[selectedSquare.row][selectedSquare.col] = null;
           success = true;
@@ -107,8 +108,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
     // 4. Charm (80%)
     else if (activePower === 'charm') {
       cost = 80;
-      if (currentEnergy >= cost && targetPiece && targetPiece.color !== turn && targetPiece.type !== 'king' && targetPiece.type !== 'queen') {
-        newBoard[targetSquare.row][targetSquare.col] = { ...targetPiece, color: turn };
+      if (currentEnergy >= cost && targetPiece && targetPiece.color !== turnColor && targetPiece.type !== 'king' && targetPiece.type !== 'queen') {
+        newBoard[targetSquare.row][targetSquare.col] = { ...targetPiece, color: turnColor };
         success = true;
       }
     }
@@ -120,7 +121,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       
       if (currentEnergy >= cost && !targetPiece && lostPieces.length > 0) {
         const pieceToRevive = lostPieces[lostPieces.length - 1];
-        newBoard[targetSquare.row][targetSquare.col] = { ...pieceToRevive, color: turn };
+        newBoard[targetSquare.row][targetSquare.col] = { ...pieceToRevive, color: turnColor };
         
         if (turn === 'naomy') {
           newCapturedPapa = newCapturedPapa.slice(0, -1);
@@ -168,7 +169,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
        const { selectedSquare, board } = get();
        if (!selectedSquare) {
          const piece = board[pos.row][pos.col];
-         if (piece && piece.color === get().turn) {
+         const turnColor = get().turn === 'naomy' ? 'white' : 'black';
+         if (piece && piece.color === turnColor) {
            set({ selectedSquare: pos, validMoves: [] });
          }
        } else {
@@ -190,7 +192,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
       return;
     }
 
-    if (piece && piece.color === turn) {
+    const turnColor = turn === 'naomy' ? 'white' : 'black';
+    if (piece && piece.color === turnColor) {
       if (frozenPieces[piece.id]) return;
 
       const moves = getLegalMoves(board, pos);
