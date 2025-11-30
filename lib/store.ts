@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { BoardState, GameState, Move, Player, Position, Piece } from './types';
+import { BoardState, GameState, Move, Player, Position } from './types';
 import { INITIAL_BOARD, getLegalMoves, makeMove, isCheck } from './chessEngine';
 
 interface GameStore extends GameState {
