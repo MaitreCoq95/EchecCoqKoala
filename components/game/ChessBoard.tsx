@@ -213,7 +213,6 @@ export const ChessBoard = ({ playerView, boardId = 'split-dual' }: ChessBoardPro
             </div>
           </div>
         )}
-      </div>
     </div>
   );
 };
