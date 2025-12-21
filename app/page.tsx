@@ -60,10 +60,10 @@ export default function Home() {
               transition={{ duration: 0.8 }}
             >
               <h1 className="text-6xl md:text-8xl font-black text-transparent bg-clip-text bg-linear-to-r from-yellow-400 via-pink-500 to-purple-500 drop-shadow-2xl">
-                ⚔️ Koala vs Coq ⚔️
+                🐓 CocoriChest ♟️
               </h1>
               <p className="text-xl md:text-2xl text-white/80 font-medium mt-4">
-                Le duel épique : Magie vs Muscles !
+                Le jeu d&apos;échecs épique : Magie vs Muscles !
               </p>
             </motion.div>
 
@@ -75,10 +75,10 @@ export default function Home() {
               className="relative w-full max-w-2xl aspect-video rounded-2xl overflow-hidden shadow-2xl border-4 border-white/20"
             >
               <Image
-                src="/assets/ui/hero-main.png"
-                alt="Epic Battle - Koala vs Coq"
+                src="/assets/ui/hero-cocorichest.png"
+                alt="CocoriChest - Jeu d'échecs épique"
                 fill
-                className="object-cover"
+                className="object-contain"
                 priority
               />
               <div className="absolute inset-0 bg-linear-to-t from-black/50 to-transparent" />

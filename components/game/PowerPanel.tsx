@@ -20,7 +20,7 @@ const PowerBar = ({ power, onClick, disabled }: PowerBarProps) => {
       whileHover={isReady ? { scale: 1.02 } : {}}
       whileTap={isReady ? { scale: 0.98 } : {}}
       className={`
-        w-full p-3 rounded-xl transition-all duration-300 relative overflow-hidden
+        w-full p-3 rounded-xl transition-all duration-300 relative overflow-visible group
         ${isReady 
           ? 'bg-linear-to-r from-white/20 to-white/10 hover:from-white/30 hover:to-white/20 cursor-pointer shadow-lg' 
           : 'bg-white/5 cursor-not-allowed opacity-70'
@@ -83,10 +83,11 @@ const PowerBar = ({ power, onClick, disabled }: PowerBarProps) => {
         )}
       </div>
       
-      {/* Tooltip */}
-      <div className="absolute left-0 right-0 -bottom-10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-        <div className="bg-black/90 text-white text-xs rounded-lg px-2 py-1 mx-2">
-          {power.description}
+      {/* Tooltip - shows on hover */}
+      <div className="absolute left-0 right-0 top-full mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+        <div className="bg-slate-900/95 text-white text-xs rounded-lg px-3 py-2 mx-2 shadow-xl border border-white/10">
+          <p className="font-bold text-yellow-400 mb-1">{power.name}</p>
+          <p className="text-white/80">{power.description}</p>
         </div>
       </div>
     </motion.button>

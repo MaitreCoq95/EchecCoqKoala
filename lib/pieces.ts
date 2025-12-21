@@ -105,6 +105,13 @@ export const boardConfigs: BoardConfig[] = [
     imagePath: '/assets/boards/board-6.png',
     description: 'Variation thématique',
     gridColor: 'border-slate-800/60',
+  },
+  {
+    id: 'board-7',
+    name: 'Plateau 7',
+    imagePath: '/assets/boards/board-7.png',
+    description: 'Nouveau plateau',
+    gridColor: 'border-slate-800/60',
   }
 ];
 

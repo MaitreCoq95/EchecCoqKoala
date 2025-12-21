@@ -2,40 +2,7 @@
 
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-
-interface BoardOption {
-  id: string;
-  name: string;
-  imagePath: string;
-  description: string;
-}
-
-const boardOptions: BoardOption[] = [
-  {
-    id: 'split-dual',
-    name: 'Royaume Divisé',
-    imagePath: '/assets/boards/board-split-dual.png',
-    description: 'Deux territoires distincts'
-  },
-  {
-    id: 'asymmetric',
-    name: 'Arène Asymétrique',
-    imagePath: '/assets/boards/board-asymmetric.png',
-    description: 'Combat déséquilibré'
-  },
-  {
-    id: 'neutral',
-    name: 'Neutre Élégant',
-    imagePath: '/assets/boards/board-neutral.png',
-    description: 'Style minimaliste'
-  },
-  {
-    id: 'simple',
-    name: 'Classique Royal',
-    imagePath: '/assets/boards/board-simple.png',
-    description: 'Tradition pure'
-  }
-];
+import { boardConfigs } from '@/lib/pieces';
 
 interface BoardSelectionProps {
   player: 'naomy' | 'papa';
@@ -69,52 +36,55 @@ export const BoardSelection = ({ player, onSelectBoard, onBack }: BoardSelection
       </motion.div>
 
       {/* Board Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 px-8">
-        {boardOptions.map((board, index) => (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 px-4">
+        {boardConfigs.map((board, index) => (
           <motion.div
             key={board.id}
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.15 }}
-            whileHover={{ scale: 1.05, y: -10 }}
+            transition={{ delay: index * 0.1 }}
+            whileHover={{ scale: 1.03, y: -5 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => onSelectBoard(board.id)}
             className="cursor-pointer group h-full"
           >
             <div className={`
               h-full flex flex-col
-              relative bg-linear-to-br from-white/10 to-white/5 
-              backdrop-blur-md rounded-3xl overflow-hidden shadow-2xl border-4 
+              relative bg-slate-800/80 backdrop-blur-md rounded-2xl overflow-hidden shadow-xl border-2 
               transition-all duration-300 
               ${isNaomy 
-                ? 'border-naomy-primary/30 hover:border-naomy-primary hover:shadow-[0_0_30px_rgba(236,72,153,0.3)]' 
-                : 'border-papa-primary/30 hover:border-papa-primary hover:shadow-[0_0_30px_rgba(249,115,22,0.3)]'
+                ? 'border-pink-500/30 hover:border-pink-400 hover:shadow-[0_0_25px_rgba(236,72,153,0.4)]' 
+                : 'border-orange-500/30 hover:border-orange-400 hover:shadow-[0_0_25px_rgba(249,115,22,0.4)]'
               }
             `}>
               {/* Board Preview Image */}
-              <div className="aspect-square relative m-4 rounded-2xl overflow-hidden shadow-inner bg-black/20">
-                <div className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" 
-                     style={{ backgroundImage: `url(${board.imagePath})` }} 
+              <div className="aspect-square relative m-3 rounded-xl overflow-hidden bg-black/40">
+                <Image
+                  src={board.imagePath}
+                  alt={board.name}
+                  fill
+                  className="object-cover transition-transform duration-500 group-hover:scale-110"
+                  sizes="(max-width: 768px) 100vw, 25vw"
                 />
                 
-                {/* Overlay shine */}
+                {/* Overlay shine on hover */}
                 <div className="absolute inset-0 bg-linear-to-tr from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               </div>
 
               {/* Info content */}
-              <div className="p-6 flex-1 flex flex-col items-center text-center justify-between gap-4">
+              <div className="p-4 flex-1 flex flex-col items-center text-center justify-between gap-3">
                 <div>
-                  <h3 className="font-black text-2xl text-white mb-2 drop-shadow-md group-hover:scale-105 transition-transform">
+                  <h3 className="font-bold text-lg text-white mb-1 group-hover:scale-105 transition-transform">
                     {board.name}
                   </h3>
-                  <p className="text-white/70 text-sm font-medium">
+                  <p className="text-white/60 text-xs">
                     {board.description}
                   </p>
                 </div>
                 
                 <div className={`
-                  w-full py-3 px-6 rounded-xl font-black text-white text-lg uppercase tracking-wider
-                  transition-all duration-300 transform shadow-lg
+                  w-full py-2 px-4 rounded-lg font-bold text-white text-sm uppercase tracking-wide
+                  transition-all duration-300 shadow-md
                   ${isNaomy 
                     ? 'bg-linear-to-r from-pink-500 to-purple-600 group-hover:from-pink-400 group-hover:to-purple-500' 
                     : 'bg-linear-to-r from-orange-500 to-red-600 group-hover:from-orange-400 group-hover:to-red-500'
@@ -130,3 +100,4 @@ export const BoardSelection = ({ player, onSelectBoard, onBack }: BoardSelection
     </div>
   );
 };
+
