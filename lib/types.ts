@@ -29,6 +29,7 @@ export interface Move {
 }
 
 export interface GameState {
+  gameId: string | null; // Added for multiplayer
   board: BoardState;
   turn: Player;
   selectedSquare: Position | null;
@@ -40,7 +41,7 @@ export interface GameState {
   winner: Player | null;
   energyNaomy: number;
   energyPapa: number;
-  status: 'idle' | 'playing' | 'ended';
+  status: 'idle' | 'playing' | 'ended' | 'waiting';
 }
 
 export interface Theme {

@@ -1,8 +1,9 @@
+'use client';
+
 import { Piece, Position } from '@/lib/types';
 import { ChessPiece } from './ChessPiece';
 import { useGameStore } from '@/lib/store';
 import { clsx } from 'clsx';
-import { THEME_NAOMY, THEME_PAPA } from '@/lib/themes';
 
 interface ChessSquareProps {
   position: Position;
@@ -11,7 +12,7 @@ interface ChessSquareProps {
   isValidMove: boolean;
   isLastMove: boolean;
   onClick: () => void;
-  playerTheme: 'naomy' | 'papa'; // The theme of the current player viewing the board
+  playerTheme: 'naomy' | 'papa';
 }
 
 export const ChessSquare = ({
@@ -20,14 +21,7 @@ export const ChessSquare = ({
   isSelected,
   isValidMove,
   onClick,
-  playerTheme,
 }: ChessSquareProps) => {
-  const isLight = (position.row + position.col) % 2 === 0;
-  
-  // Determine base color based on player theme preference (or just standard board colors)
-  const theme = playerTheme === 'naomy' ? THEME_NAOMY : THEME_PAPA;
-  const baseColor = isLight ? theme.colors.boardLight : theme.colors.boardDark;
-
   const { frozenPieces, shieldedPieces } = useGameStore();
   const isFrozen = piece && frozenPieces[piece.id];
   const isShielded = piece && shieldedPieces[piece.id];
@@ -36,21 +30,20 @@ export const ChessSquare = ({
     <div
       onClick={onClick}
       className={clsx(
-        'w-full h-full flex items-center justify-center relative transition-colors duration-200',
-        'cursor-pointer',
+        'w-full h-full flex items-center justify-center relative transition-all duration-200',
+        'cursor-pointer hover:bg-white/10',
         {
-          'ring-4 ring-inset ring-yellow-400 z-10': isSelected,
-          'ring-4 ring-inset ring-green-400/50': isValidMove && !piece, // Empty valid move
-          'ring-4 ring-inset ring-red-400/50': isValidMove && piece, // Capture move
-          'ring-4 ring-cyan-400 bg-cyan-100/50': isFrozen,
-          'ring-4 ring-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.8)]': isShielded
+          'ring-4 ring-inset ring-yellow-400 z-10 bg-yellow-400/20': isSelected,
+          'ring-4 ring-inset ring-green-400/50 bg-green-400/10': isValidMove && !piece,
+          'ring-4 ring-inset ring-red-400/50 bg-red-400/10': isValidMove && piece,
+          'ring-4 ring-cyan-400 bg-cyan-100/30': isFrozen,
+          'ring-4 ring-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.8)] bg-yellow-400/20': isShielded
         }
       )}
-      style={{ backgroundColor: baseColor }}
     >
       {/* Valid move indicator dot for empty squares */}
       {isValidMove && !piece && (
-        <div className="absolute w-4 h-4 rounded-full bg-green-400/50" />
+        <div className="absolute w-4 h-4 rounded-full bg-green-400/60 shadow-lg" />
       )}
       
       {/* Capture indicator ring for occupied squares */}
@@ -58,16 +51,16 @@ export const ChessSquare = ({
         <div className="absolute w-full h-full rounded-full border-4 border-red-400/50 animate-pulse" />
       )}
 
-      {piece && <ChessPiece piece={piece} />}
+      {piece && <ChessPiece piece={piece} isShielded={!!isShielded} isFrozen={!!isFrozen} />}
       
-      {/* Coordinates (optional, for debugging or learning) */}
+      {/* Coordinates */}
       {position.col === 0 && (
-        <span className={clsx("absolute left-0.5 top-0.5 text-[10px] font-bold opacity-50", isLight ? "text-slate-600" : "text-white")}>
+        <span className="absolute left-0.5 top-0.5 text-[10px] font-bold text-white/60">
           {8 - position.row}
         </span>
       )}
       {position.row === 7 && (
-        <span className={clsx("absolute right-0.5 bottom-0 text-[10px] font-bold opacity-50", isLight ? "text-slate-600" : "text-white")}>
+        <span className="absolute right-0.5 bottom-0 text-[10px] font-bold text-white/60">
           {String.fromCharCode(97 + position.col)}
         </span>
       )}

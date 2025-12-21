@@ -1,0 +1,57 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Game {
+  id              String   @id @default(cuid())
+  code            String   @unique @db.VarChar(6)
+  boardState      Json     @map("board_state")
+  currentTurn     String   @default("naomy") @map("current_turn")
+  status          String   @default("waiting") // waiting, playing, ended
+  playerNaomyName String?  @map("player_naomy_name")
+  playerVivienName String? @map("player_vivien_name")
+  winner          String?
+  selectedBoard   String   @default("asymmetric") @map("selected_board")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  moves       Move[]
+  gamePowers  GamePower[]
+
+  @@map("games")
+}
+
+model Move {
+  id              String   @id @default(cuid())
+  gameId          String   @map("game_id")
+  player          String
+  moveData        Json     @map("move_data")
+  boardStateAfter Json     @map("board_state_after")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  game Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+  @@map("moves")
+}
+
+model GamePower {
+  id            String @id @default(cuid())
+  gameId        String @map("game_id")
+  player        String
+  powerId       String @map("power_id")
+  currentCharge Int    @default(0) @map("current_charge")
+
+  game Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+  @@unique([gameId, player, powerId])
+  @@map("game_powers")
+}
