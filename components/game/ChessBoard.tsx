@@ -135,7 +135,7 @@ export const ChessBoard = ({ playerView, boardId = 'split-dual' }: ChessBoardPro
           <span>Pivoter le plateau</span>
         </button>
 
-        {/* Calibration Toggle */}\
+        {/* Calibration Toggle */}
         <button 
           onClick={() => setUseCalibrationBoard(!useCalibrationBoard)}
           className={`
