@@ -4,7 +4,7 @@ import { useGameStore } from '@/lib/store';
 import { ChessSquare } from './ChessSquare';
 import { useEffect, useState } from 'react';
 import { Player } from '@/lib/types';
-import { getBoardConfig } from '@/lib/pieces';
+import { getBoardConfig, boardConfigs, CALIBRATION_BOARD_PATH } from '@/lib/pieces';
 import Image from 'next/image';
 
 interface ChessBoardProps {
@@ -12,18 +12,20 @@ interface ChessBoardProps {
   boardId?: string;
 }
 
-export const ChessBoard = ({ playerView, boardId = 'split-dual' }: ChessBoardProps) => {
-  const [useCalibrationBoard, setUseCalibrationBoard] = useState(false);
+export const ChessBoard = ({ playerView, boardId: initialBoardId = 'standard' }: ChessBoardProps) => {
+  // Game phase: 'calibration' (setup) or 'playing' (actual game)
+  const [gamePhase, setGamePhase] = useState<'calibration' | 'playing'>('calibration');
+  const [selectedBoardId, setSelectedBoardId] = useState(initialBoardId);
   const [manualFlip, setManualFlip] = useState(false);
   const [calibrationData, setCalibrationData] = useState({
-    offsetX: 100, // Default 100
-    offsetY: 100, // Default 100
-    gridSize: 1848, // Default 1848
+    offsetX: 100,
+    offsetY: 100,
+    gridSize: 1848,
   });
 
   const { board, selectedSquare, validMoves, selectSquare, movePiece, initGame } = useGameStore();
   
-  const boardConfig = getBoardConfig(boardId);
+  const boardConfig = getBoardConfig(selectedBoardId);
 
   // Constants
   const SOURCE_TOTAL_SIZE = 2048;
@@ -40,6 +42,7 @@ export const ChessBoard = ({ playerView, boardId = 'split-dual' }: ChessBoardPro
   }, [initGame]);
 
   const handleSquareClick = (row: number, col: number) => {
+    if (gamePhase !== 'playing') return; // Disable moves during calibration
     if (validMoves.some(m => m.row === row && m.col === col)) {
       movePiece({ row, col });
     } else {
@@ -47,12 +50,25 @@ export const ChessBoard = ({ playerView, boardId = 'split-dual' }: ChessBoardPro
     }
   };
 
-  const currentBoardImage = useCalibrationBoard 
-    ? '/assets/boards/plateau-de-reglage.png'
-    : (boardConfig?.imagePath || '/assets/boards/board-split-dual.png');
+  const handleStartGame = () => {
+    setGamePhase('playing');
+  };
+
+  // In calibration phase, show calibration board; in playing phase, show selected board
+  const currentBoardImage = gamePhase === 'calibration' 
+    ? CALIBRATION_BOARD_PATH
+    : (boardConfig?.imagePath || '/assets/boards/board-standard.png');
 
   return (
     <div className="flex flex-col gap-4 items-center">
+      {/* Calibration Phase Header */}
+      {gamePhase === 'calibration' && (
+        <div className="bg-yellow-500/20 border border-yellow-500/50 rounded-xl p-4 text-center animate-pulse">
+          <h2 className="text-xl font-bold text-yellow-400">🛠️ Phase de Calibrage</h2>
+          <p className="text-sm text-yellow-300/80">Ajustez la grille et choisissez votre plateau</p>
+        </div>
+      )}
+
       {/* Board Container */}
       <div 
         className="relative rounded-xl overflow-hidden shadow-2xl bg-slate-800"
@@ -71,7 +87,7 @@ export const ChessBoard = ({ playerView, boardId = 'split-dual' }: ChessBoardPro
         
         {/* Chess Grid Overlay - Positioned precisely */}
         <div 
-          className={`absolute z-10 grid grid-cols-8 grid-rows-8 gap-0 ${useCalibrationBoard ? 'border-2 border-red-500 bg-red-500/10' : ''}`}
+          className={`absolute z-10 grid grid-cols-8 grid-rows-8 gap-0 ${gamePhase === 'calibration' ? 'border-2 border-red-500 bg-red-500/10' : ''}`}
           style={{
             top: borderOffsetY,
             left: borderOffsetX,
@@ -80,12 +96,6 @@ export const ChessBoard = ({ playerView, boardId = 'split-dual' }: ChessBoardPro
           }}
         >
           {(() => {
-            // Logic to invert the board if player is Papa (Black) OR manual flip is active
-            // XOR Logic: (View === Papa) XOR (ManualFlip)
-            // If View Papa (Black) & ManualFlip (False) => Flipped (Black Perspective)
-            // If View Papa (Black) & ManualFlip (True) => Normal (White Perspective)
-            // If View Naomy (White) & ManualFlip (True) => Flipped (Black Perspective)
-            
             const isFlipped = (playerView === 'papa') !== manualFlip;
             const displayRows = isFlipped ? [...board].reverse() : board;
             
@@ -113,8 +123,8 @@ export const ChessBoard = ({ playerView, boardId = 'split-dual' }: ChessBoardPro
           })()}
         </div>
         
-        {/* Decorative corners */}
-        {!useCalibrationBoard && (
+        {/* Decorative corners (only in playing phase) */}
+        {gamePhase === 'playing' && (
           <>
             <div className="absolute top-2 left-2 text-2xl opacity-70 z-20 pointer-events-none">🏰</div>
             <div className="absolute top-2 right-2 text-2xl opacity-70 z-20 pointer-events-none">🏰</div>
@@ -124,95 +134,101 @@ export const ChessBoard = ({ playerView, boardId = 'split-dual' }: ChessBoardPro
         )}
       </div>
 
-      {/* Controls Bar */}
-      <div className="flex gap-4 w-full justify-center">
-        {/* Flip Toggle */}
-        <button 
-          onClick={() => setManualFlip(!manualFlip)}
-          className="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 active:scale-95 text-white rounded-full transition-all shadow-lg font-bold"
-        >
-          <span>🔄</span>
-          <span>Pivoter le plateau</span>
-        </button>
-
-        {/* Calibration Toggle */}
-        <button 
-          onClick={() => setUseCalibrationBoard(!useCalibrationBoard)}
-          className={`
-            px-4 py-2 rounded-full font-bold transition-all
-            ${useCalibrationBoard 
-              ? 'bg-red-500 hover:bg-red-600 text-white shadow-red-500/50 shadow-lg' 
-              : 'bg-slate-700 hover:bg-slate-600 text-slate-300'
-            }
-          `}
-        >
-          {useCalibrationBoard ? '🛠️ MODE CALIBRAGE' : '⚡ Calibrage'}
-        </button>
-      </div>
-
-        {useCalibrationBoard && (
-          <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-4 mt-2 animate-in fade-in slide-in-from-top-2">
-            <div className="flex flex-col gap-1">
-              <label className="text-xs font-bold text-slate-400">Offset X (Left): {calibrationData.offsetX}px</label>
-              <input 
-                type="range" 
-                min="0" 
-                max="300" 
-                value={calibrationData.offsetX}
-                onChange={(e) => setCalibrationData(prev => ({ ...prev, offsetX: Number(e.target.value) }))}
-                className="accent-blue-500"
-              />
-              <input 
-                type="number" 
-                value={calibrationData.offsetX}
-                onChange={(e) => setCalibrationData(prev => ({ ...prev, offsetX: Number(e.target.value) }))}
-                className="bg-slate-800 border border-slate-700 rounded px-2 py-1 text-xs"
-              />
-            </div>
-
-            <div className="flex flex-col gap-1">
-              <label className="text-xs font-bold text-slate-400">Offset Y (Top): {calibrationData.offsetY}px</label>
-              <input 
-                type="range" 
-                min="0" 
-                max="300" 
-                value={calibrationData.offsetY}
-                onChange={(e) => setCalibrationData(prev => ({ ...prev, offsetY: Number(e.target.value) }))}
-                className="accent-green-500"
-              />
-              <input 
-                type="number"
-                value={calibrationData.offsetY}
-                onChange={(e) => setCalibrationData(prev => ({ ...prev, offsetY: Number(e.target.value) }))}
-                className="bg-slate-800 border border-slate-700 rounded px-2 py-1 text-xs"
-              />
-            </div>
-
-            <div className="flex flex-col gap-1">
-              <label className="text-xs font-bold text-slate-400">Grid Size: {calibrationData.gridSize}px</label>
-              <input 
-                type="range" 
-                min="1600" 
-                max="2048" 
-                value={calibrationData.gridSize}
-                onChange={(e) => setCalibrationData(prev => ({ ...prev, gridSize: Number(e.target.value) }))}
-                className="accent-purple-500"
-              />
-              <input 
-                type="number"
-                value={calibrationData.gridSize}
-                onChange={(e) => setCalibrationData(prev => ({ ...prev, gridSize: Number(e.target.value) }))}
-                className="bg-slate-800 border border-slate-700 rounded px-2 py-1 text-xs"
-              />
-            </div>
-
-            <div className="col-span-full pt-2 border-t border-slate-700/50">
-               <p className="text-xs text-yellow-400/80 text-center">
-                 Ajustez les sliders jusqu&apos;à ce que la bordure rouge s&apos;aligne parfaitement avec les lignes du plateau !
-               </p>
+      {/* Calibration Controls */}
+      {gamePhase === 'calibration' && (
+        <div className="w-full max-w-2xl space-y-4">
+          {/* Board Selector */}
+          <div className="bg-slate-800/80 rounded-xl p-4 border border-slate-700">
+            <h3 className="text-sm font-bold text-slate-300 mb-3">📋 Choisir le plateau :</h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+              {boardConfigs.map((config) => (
+                <button
+                  key={config.id}
+                  onClick={() => setSelectedBoardId(config.id)}
+                  className={`p-3 rounded-lg text-sm font-medium transition-all ${
+                    selectedBoardId === config.id
+                      ? 'bg-green-500 text-white ring-2 ring-green-400'
+                      : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+                  }`}
+                >
+                  {config.name}
+                </button>
+              ))}
             </div>
           </div>
-        )}
+
+          {/* Calibration Sliders */}
+          <div className="bg-slate-800/80 rounded-xl p-4 border border-slate-700">
+            <h3 className="text-sm font-bold text-slate-300 mb-3">🔧 Réglages de la grille :</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-bold text-slate-400">Offset X: {calibrationData.offsetX}px</label>
+                <input 
+                  type="range" 
+                  min="0" 
+                  max="300" 
+                  value={calibrationData.offsetX}
+                  onChange={(e) => setCalibrationData(prev => ({ ...prev, offsetX: Number(e.target.value) }))}
+                  className="accent-blue-500"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-bold text-slate-400">Offset Y: {calibrationData.offsetY}px</label>
+                <input 
+                  type="range" 
+                  min="0" 
+                  max="300" 
+                  value={calibrationData.offsetY}
+                  onChange={(e) => setCalibrationData(prev => ({ ...prev, offsetY: Number(e.target.value) }))}
+                  className="accent-green-500"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-bold text-slate-400">Taille: {calibrationData.gridSize}px</label>
+                <input 
+                  type="range" 
+                  min="1600" 
+                  max="2048" 
+                  value={calibrationData.gridSize}
+                  onChange={(e) => setCalibrationData(prev => ({ ...prev, gridSize: Number(e.target.value) }))}
+                  className="accent-purple-500"
+                />
+              </div>
+            </div>
+            <p className="text-xs text-yellow-400/80 text-center mt-3">
+              Ajustez la bordure rouge pour qu&apos;elle s&apos;aligne avec les cases du plateau !
+            </p>
+          </div>
+
+          {/* Start Game Button */}
+          <button
+            onClick={handleStartGame}
+            className="w-full py-4 bg-linear-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white font-bold text-xl rounded-xl shadow-lg shadow-green-500/30 transition-all transform hover:scale-[1.02] active:scale-95"
+          >
+            ⚔️ LANCER LA PARTIE ⚔️
+          </button>
+        </div>
+      )}
+
+      {/* Playing Phase Controls */}
+      {gamePhase === 'playing' && (
+        <div className="flex gap-4 w-full justify-center">
+          <button 
+            onClick={() => setManualFlip(!manualFlip)}
+            className="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 active:scale-95 text-white rounded-full transition-all shadow-lg font-bold"
+          >
+            <span>🔄</span>
+            <span>Pivoter</span>
+          </button>
+          <button 
+            onClick={() => setGamePhase('calibration')}
+            className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-full font-bold transition-all"
+          >
+            🛠️ Recalibrer
+          </button>
+        </div>
+      )}
     </div>
   );
 };
+

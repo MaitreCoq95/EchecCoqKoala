@@ -65,41 +65,50 @@ export interface BoardConfig {
 
 export const boardConfigs: BoardConfig[] = [
   {
-    id: 'split-dual',
-    name: 'Royaume Divisé',
-    imagePath: '/assets/boards/board-split-dual.png',
-    description: 'Deux territoires distincts',
-    gridColor: 'border-white/30',
-  },
-  {
-    id: 'asymmetric',
-    name: 'Arène Asymétrique',
-    imagePath: '/assets/boards/board-asymmetric.png',
-    description: 'Combat déséquilibré',
-    gridColor: 'border-white/30',
-  },
-  {
-    id: 'neutral',
-    name: 'Neutre Élégant',
-    imagePath: '/assets/boards/board-neutral.png',
-    description: 'Style minimaliste',
-    gridColor: 'border-slate-800/50',
-  },
-  {
-    id: 'simple',
-    name: 'Classique Royal',
-    imagePath: '/assets/boards/board-simple.png',
-    description: 'Tradition pure',
-    gridColor: 'border-slate-800/80',
-  },
-  {
     id: 'standard',
     name: 'Plateau Standard',
     imagePath: '/assets/boards/board-standard.png',
-    description: 'Plateau officiel',
+    description: 'Le plateau officiel',
+    gridColor: 'border-slate-800/60',
+  },
+  {
+    id: 'board-2',
+    name: 'Plateau 2',
+    imagePath: '/assets/boards/board-2.png',
+    description: 'Variation thématique',
+    gridColor: 'border-slate-800/60',
+  },
+  {
+    id: 'board-3',
+    name: 'Plateau 3',
+    imagePath: '/assets/boards/board-3.png',
+    description: 'Variation thématique',
+    gridColor: 'border-slate-800/60',
+  },
+  {
+    id: 'board-4',
+    name: 'Plateau 4',
+    imagePath: '/assets/boards/board-4.png',
+    description: 'Variation thématique',
+    gridColor: 'border-slate-800/60',
+  },
+  {
+    id: 'board-5',
+    name: 'Plateau 5',
+    imagePath: '/assets/boards/board-5.png',
+    description: 'Variation thématique',
+    gridColor: 'border-slate-800/60',
+  },
+  {
+    id: 'board-6',
+    name: 'Plateau 6',
+    imagePath: '/assets/boards/board-6.png',
+    description: 'Variation thématique',
     gridColor: 'border-slate-800/60',
   }
 ];
+
+export const CALIBRATION_BOARD_PATH = '/assets/boards/plateau-calibration.png';
 
 export function getBoardConfig(boardId: string): BoardConfig | undefined {
   return boardConfigs.find(b => b.id === boardId);
