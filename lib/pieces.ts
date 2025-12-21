@@ -91,6 +91,13 @@ export const boardConfigs: BoardConfig[] = [
     imagePath: '/assets/boards/board-simple.png',
     description: 'Tradition pure',
     gridColor: 'border-slate-800/80',
+  },
+  {
+    id: 'standard',
+    name: 'Plateau Standard',
+    imagePath: '/assets/boards/board-standard.png',
+    description: 'Plateau officiel',
+    gridColor: 'border-slate-800/60',
   }
 ];
 
