@@ -21,6 +21,7 @@ interface GameStore extends GameState {
   movePiece: (to: Position) => void;
   setWinner: (winner: Player) => void;
   resetGame: () => void;
+  setGameMode: (mode: 'classic' | 'powers') => void;
   
   // Power Actions
   setActivePower: (power: string | null) => void;
@@ -33,6 +34,7 @@ interface GameStore extends GameState {
 
 export const useGameStore = create<GameStore>((set, get) => ({
   gameId: null,
+  gameMode: 'powers', // Default to powers mode
   board: INITIAL_BOARD,
   turn: 'naomy', // White starts
   selectedSquare: null,
@@ -351,5 +353,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
   resetGame: () => get().initGame(),
   setBoardState: (board) => set({ board }),
   setGameId: (id) => set({ gameId: id }),
+  setGameMode: (mode) => set({ gameMode: mode }),
   syncGameState: (newState) => set((state) => ({ ...state, ...newState })),
 }));

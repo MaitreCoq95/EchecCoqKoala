@@ -30,6 +30,7 @@ export interface Move {
 
 export interface GameState {
   gameId: string | null; // Added for multiplayer
+  gameMode: 'classic' | 'powers'; // Normal chess or with powers
   board: BoardState;
   turn: Player;
   selectedSquare: Position | null;

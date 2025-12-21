@@ -32,8 +32,9 @@ function GameContent() {
     setActivePower,
     initGame,
     setBoardState,
-    setGameId, // Added
-    syncGameState // Added
+    setGameId,
+    syncGameState,
+    gameMode // Added for classic/powers mode
   } = useGameStore();
 
   const code = searchParams.get('code');
@@ -120,12 +121,14 @@ function GameContent() {
             capturedPieces={capturedByNaomy}
             energy={energyNaomy}
           />
-          <PowerPanel 
-            player="naomy" 
-            powers={naomyPowers}
-            onActivatePower={activatePower}
-            disabled={turn !== 'naomy'}
-          />
+          {gameMode === 'powers' && (
+            <PowerPanel 
+              player="naomy" 
+              powers={naomyPowers}
+              onActivatePower={activatePower}
+              disabled={turn !== 'naomy'}
+            />
+          )}
         </div>
 
         {/* Center Board */}
@@ -167,12 +170,14 @@ function GameContent() {
             capturedPieces={capturedByPapa}
             energy={energyPapa}
           />
-          <PowerPanel 
-            player="papa" 
-            powers={vivienPowers}
-            onActivatePower={activatePower}
-            disabled={turn !== 'papa'}
-          />
+          {gameMode === 'powers' && (
+            <PowerPanel 
+              player="papa" 
+              powers={vivienPowers}
+              onActivatePower={activatePower}
+              disabled={turn !== 'papa'}
+            />
+          )}
         </div>
 
       </div>

@@ -5,15 +5,22 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BoardSelection } from '@/components/game/BoardSelection';
 import Image from 'next/image';
+import { useGameStore } from '@/lib/store';
 
-type GameStep = 'home' | 'player-select' | 'board-select';
+type GameStep = 'home' | 'mode-select' | 'player-select' | 'board-select';
 
 export default function Home() {
   const router = useRouter();
   const [step, setStep] = useState<GameStep>('home');
   const [selectedPlayer, setSelectedPlayer] = useState<'naomy' | 'papa' | null>(null);
+  const setGameMode = useGameStore((state) => state.setGameMode);
 
   const handlePlayClick = () => {
+    setStep('mode-select');
+  };
+
+  const handleSelectMode = (mode: 'classic' | 'powers') => {
+    setGameMode(mode);
     setStep('player-select');
   };
 
@@ -31,6 +38,8 @@ export default function Home() {
       setStep('player-select');
       setSelectedPlayer(null);
     } else if (step === 'player-select') {
+      setStep('mode-select');
+    } else if (step === 'mode-select') {
       setStep('home');
     }
   };
@@ -157,6 +166,67 @@ export default function Home() {
                 <p className="text-orange-400/70 text-sm">Titan Rooster Empire</p>
               </div>
             </motion.div>
+          </motion.div>
+        ) : step === 'mode-select' ? (
+          <motion.div
+            key="mode-select"
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -50 }}
+            className="z-10 text-center space-y-8 max-w-4xl w-full"
+          >
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <button 
+                onClick={handleBack}
+                className="bg-white/10 hover:bg-white/20 text-white font-medium py-2 px-6 rounded-full backdrop-blur-sm transition-all flex items-center gap-2 mx-auto border border-white/10 mb-6"
+              >
+                ← Retour
+              </button>
+              <h2 className="text-5xl md:text-6xl font-black text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]">
+                ⚙️ Choisis ton Mode ⚙️
+              </h2>
+              <p className="text-xl text-white/80 font-medium mt-4">
+                Échecs classiques ou avec super-pouvoirs ?
+              </p>
+            </motion.div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 px-4">
+              {/* Classic Mode */}
+              <motion.button
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => handleSelectMode('classic')}
+                className="p-8 bg-slate-800/80 rounded-3xl border-4 border-slate-600 hover:border-blue-400 hover:shadow-[0_0_30px_rgba(59,130,246,0.3)] transition-all"
+              >
+                <div className="text-6xl mb-4">♟️</div>
+                <h3 className="text-3xl font-bold text-white mb-2">Mode Classique</h3>
+                <p className="text-white/60">Échecs purs, sans pouvoirs</p>
+                <p className="text-blue-400 text-sm mt-2">Stratégie traditionnelle</p>
+              </motion.button>
+
+              {/* Powers Mode */}
+              <motion.button
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => handleSelectMode('powers')}
+                className="p-8 bg-linear-to-br from-purple-800/80 to-pink-800/80 rounded-3xl border-4 border-purple-500 hover:border-pink-400 hover:shadow-[0_0_30px_rgba(236,72,153,0.3)] transition-all"
+              >
+                <div className="text-6xl mb-4">⚡</div>
+                <h3 className="text-3xl font-bold text-white mb-2">Mode Pouvoirs</h3>
+                <p className="text-white/60">Échecs + super-pouvoirs !</p>
+                <p className="text-pink-400 text-sm mt-2">Gel, Bouclier, Téléportation...</p>
+              </motion.button>
+            </div>
           </motion.div>
         ) : step === 'player-select' ? (
           <motion.div
